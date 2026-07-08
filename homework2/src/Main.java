@@ -1,85 +1,86 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
-    public static void main(String[] args) {
+    private static StringBuilder log = new StringBuilder();
 
+    public static void main(String[] args) {
         String basePath = "C://homework/Games";
 
-        StringBuilder log = new StringBuilder();
+        List<String> directories = List.of(
+                basePath + "/src",
+                basePath + "/res",
+                basePath + "/savegames",
+                basePath + "/temp",
+                basePath + "/src/main",
+                basePath + "/src/test",
+                basePath + "/res/drawables",
+                basePath + "/res/vectors",
+                basePath + "/res/icons"
+        );
 
+        List<String> files = List.of(
+                basePath + "/src/main/Main.java",
+                basePath + "/src/main/Utils.java",
+                basePath + "/temp/temp.txt"
+        );
 
-        File srcDir = new File(basePath + "/src");
-        File resDir = new File(basePath + "/res");
-        File savegamesDir = new File(basePath + "/savegames");
-        File tempDir = new File(basePath + "/temp");
+        for (String dirPath : directories) {
+            createDirectory(dirPath);
+        }
 
-        log.append(createDirectory(srcDir));
-        log.append(createDirectory(resDir));
-        log.append(createDirectory(savegamesDir));
-        log.append(createDirectory(tempDir));
+        for (String filePath : files) {
+            createFile(filePath);
+        }
 
-        File srcMainDir = new File(srcDir, "main");
-        File srcTestDir = new File(srcDir, "test");
-
-        log.append(createDirectory(srcMainDir));
-        log.append(createDirectory(srcTestDir));
-
-        File mainJava = new File(srcMainDir, "Main.java");
-        File utilsJava = new File(srcMainDir, "Utils.java");
-
-        log.append(createFile(mainJava));
-        log.append(createFile(utilsJava));
-
-        File resDrawablesDir = new File(resDir, "drawables");
-        File resVectorsDir = new File(resDir, "vectors");
-        File resIconsDir = new File(resDir, "icons");
-
-        log.append(createDirectory(resDrawablesDir));
-        log.append(createDirectory(resVectorsDir));
-        log.append(createDirectory(resIconsDir));
-
-        File tempTxt = new File(tempDir, "temp.txt");
-        log.append(createFile(tempTxt));
-
-        writeLogToFile(tempTxt, log.toString());
+        writeLogToFile(basePath + "/temp/temp.txt", log.toString());
 
         System.out.println(log.toString());
     }
 
-    private static String createDirectory(File dir) {
+    private static void createDirectory(String dirPath) {
+        File dir = new File(dirPath);
         if (dir.mkdir()) {
-            return "Директория создана: " + dir.getAbsolutePath() + "\n";
+            log.append("Директория создана: ").append(dir.getAbsolutePath()).append("\n");
         } else {
             if (dir.exists()) {
-                return "Директория уже существует: " + dir.getAbsolutePath() + "\n";
+                log.append("Директория уже существует: ").append(dir.getAbsolutePath()).append("\n");
+            } else {
+                log.append("Ошибка при создании директории: ").append(dir.getAbsolutePath()).append("\n");
             }
-            return "Ошибка при создании директории: " + dir.getAbsolutePath() + "\n";
         }
     }
 
-    private static String createFile(File file) {
+    private static void createFile(String filePath) {
+        File file = new File(filePath);
         try {
             if (file.createNewFile()) {
-                return "Файл создан: " + file.getAbsolutePath() + "\n";
+                log.append("Файл создан: ").append(file.getAbsolutePath()).append("\n");
             } else {
                 if (file.exists()) {
-                    return "Файл уже существует: " + file.getAbsolutePath() + "\n";
+                    log.append("Файл уже существует: ").append(file.getAbsolutePath()).append("\n");
+                } else {
+                    log.append("Ошибка при создании файла: ").append(file.getAbsolutePath()).append("\n");
                 }
-                return "Ошибка при создании файла: " + file.getAbsolutePath() + "\n";
             }
         } catch (IOException e) {
-            return "Ошибка при создании файла " + file.getAbsolutePath() + ": " + e.getMessage() + "\n";
+            log.append("Ошибка при создании файла ").append(file.getAbsolutePath())
+                    .append(": ").append(e.getMessage()).append("\n");
         }
     }
 
-    private static void writeLogToFile(File tempFile, String logContent) {
-        try (FileWriter writer = new FileWriter(tempFile)) {
+    private static void writeLogToFile(String filePath, String logContent) {
+        try (FileWriter writer = new FileWriter(filePath)) {
             writer.write(logContent);
-            System.out.println("Лог успешно записан в файл: " + tempFile.getAbsolutePath());
+            log.append("Лог успешно записан в файл: ").append(filePath).append("\n");
+            System.out.println("Лог успешно записан в файл: " + filePath);
         } catch (IOException e) {
-            System.out.println("Ошибка при записи лога в файл: " + e.getMessage());
+            String errorMsg = "Ошибка при записи лога в файл: " + e.getMessage();
+            log.append(errorMsg).append("\n");
+            System.err.println(errorMsg);
         }
     }
 }
